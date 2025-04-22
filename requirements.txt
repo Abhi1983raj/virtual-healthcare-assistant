@@ -1,0 +1,13 @@
+# Streamlit web app framework
+streamlit
+
+# LangChain core + Google Generative AI integration
+langchain
+langchain-google-genai
+
+# Environment variable and secrets management
+python-dotenv
+
+# Optional: for nice loading animations, tool usage, or additional LLM support
+openai
+tqdm
