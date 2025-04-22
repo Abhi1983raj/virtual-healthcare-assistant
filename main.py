@@ -26,4 +26,43 @@ except Exception as e:
 
 # ✅ Streamlit Chat UI
 st.title("🤖 Virtual AI Assistant")
-st.mark
+st.markdown("Ask me anything and I’ll do my best to help!")
+
+# ✅ Chat session state
+if "messages" not in st.session_state:
+    st.session_state["messages"] = [
+        {"role": "assistant", "content": "Hello! How can I assist you today?"}
+    ]
+
+# ✅ Display past messages
+for message in st.session_state["messages"]:
+    with st.chat_message(message["role"]):
+        st.markdown(message["content"])
+
+# ✅ Handle new user input
+if prompt := st.chat_input("Type your message here..."):
+    st.session_state["messages"].append({"role": "user", "content": prompt})
+    with st.chat_message("user"):
+        st.markdown(prompt)
+
+    with st.chat_message("assistant"):
+        message_placeholder = st.empty()
+        full_response = ""
+        try:
+            response = llm.invoke(prompt)
+
+            # ✅ Stream response word by word, with formatting
+            for chunk in response.content.split():
+                full_response += chunk + " "
+                message_placeholder.markdown(full_response + "▌")
+
+            # ✅ Format newlines and proper markdown
+            formatted_response = full_response.replace("* ", "\n\n* ").replace(". ", ".\n\n")
+            message_placeholder.markdown(formatted_response.strip())
+
+            st.session_state["messages"].append({"role": "assistant", "content": formatted_response.strip()})
+
+        except Exception as e:
+            st.error(f"❌ Error from Gemini: {e}")
+            st.session_state["messages"].append({"role": "assistant", "content": f"Sorry, something went wrong: {e}"})
+            message_placeholder.markdown(f"Sorry, something went wrong: {e}")
